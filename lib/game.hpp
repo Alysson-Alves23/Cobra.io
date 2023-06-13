@@ -3,7 +3,7 @@
 #include <GL/glut.h>
 
 int gridX, gridY;
-
+int posX= 20, posY = 20;
 void initGrid(int columns, int rows) {
     gridX = columns;
     gridY = rows;
@@ -25,5 +25,8 @@ void drawGrid() {
         for(int j = 1;j<gridY-1;j++)
         unit(i, j);
 }
-
+void drawSnake(){
+    glRectd(posX,posY,posX+1,posY+1);
+    //SglRectd(20,20,21,21);
+}
 #endif // GAME_H
