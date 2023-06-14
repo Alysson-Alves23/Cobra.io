@@ -80,7 +80,7 @@ target createTarget(){
             break;
         case 10:
             t.color[0] = 1;
-            t.color[1] = 1.5;
+            t.color[1] = 0.5;
             t.color[2] = 0;
             break;
         case 5:

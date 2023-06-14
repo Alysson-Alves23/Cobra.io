@@ -41,6 +41,7 @@ void moveSnake();
 void scoreboard();
 
 vector<vector<target>> grid(40,vector<target>(40));
+
 int main (int argc, char **v){
 
     segment b;
@@ -135,9 +136,15 @@ void targetControl(){
         targets = maxTargets(rng);
         for(int i = 0; i < targets; i++){
             target t;
+
             do {
                  t = createTarget();
-            } while (grid[t.x][t.y].value != 0);
+                 for( segment b: s.body){
+                     if(t.x== b.x && t.y == b.y){
+                         t.value =0;
+                     }
+                 }
+            } while (grid[t.x][t.y].value != 0 );
 
             grid[t.x][t.y] = t;
         }
@@ -186,6 +193,13 @@ void moveSnake(){
     }
     s.body[0].x = posX;
     s.body[0].y = posY;
+    for(int i = 1; i< s.size;i++)
+        if(s.body[0].x == s.body[i].x  && s.body[0].y==s.body[i].y){
+            s.size=1;
+            points = 0;
+            posX =20;
+            posY = 20;
+        }
     drawSnake(s.body[0]);
 }
 void scoreboard() {
