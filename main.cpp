@@ -38,7 +38,7 @@ void timer_callback(int);
 void init();
 void checkPos();
 void targetControl();
-
+void scoreboard();
 vector<vector<target>> grid(40,vector<target>(40));
 int main (int argc, char **v){
     glutInit(&argc, v);
@@ -66,6 +66,7 @@ void display_callback(){
     drawSnake();
     targetControl();
     *index += direction;
+    scoreboard();
     glutSwapBuffers();
 }
 void reshape_callback(int w, int h){
@@ -149,5 +150,16 @@ void targetControl(){
         points += grid[posX][posY].value;
         grid[posX][posY].value = 0;
         targets--;
+    }
+}
+void scoreboard() {
+    std::string pointsStr = "Points: " + std::to_string(points);
+    glColor3f(0, 0, 0); // Define a cor do texto (branco)
+
+    glRasterPos2f(1.0, 1.0); // Define a posição inicial para desenhar o texto
+
+    // Itera pelos caracteres da string e desenha cada um individualmente
+    for (char c : pointsStr) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c); // Especifica a fonte e o caractere a ser desenhado
     }
 }
