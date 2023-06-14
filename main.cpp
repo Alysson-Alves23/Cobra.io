@@ -156,7 +156,7 @@ void scoreboard() {
     std::string pointsStr = "Points: " + std::to_string(points);
     glColor3f(0, 0, 0); // Define a cor do texto (branco)
 
-    glRasterPos2f(1.0, 1.0); // Define a posição inicial para desenhar o texto
+    glRasterPos2f(1.0, 39.0); // Define a posição inicial para desenhar o texto
 
     // Itera pelos caracteres da string e desenha cada um individualmente
     for (char c : pointsStr) {
