@@ -20,18 +20,27 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include "game.hpp"
+#include <random>
+
+using namespace std;
 
 #define COLUMNS 40
 #define ROWS 40
 #define FPS 18
+
+
+
+
 void display_callback();
 void reshape_callback(int,int);
 void keyboard_callback(unsigned char,int,int);
 void timer_callback(int);
 void init();
 void checkPos();
-int main (int argc, char **v){
+void targetControl();
 
+vector<vector<target>> grid(40,vector<target>(40));
+int main (int argc, char **v){
     glutInit(&argc, v);
     glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE);
     glutInitWindowSize(500,500);
@@ -40,11 +49,14 @@ int main (int argc, char **v){
     glutReshapeFunc(reshape_callback);
     glutKeyboardFunc(keyboard_callback);
     glutTimerFunc(0,timer_callback,0);
+
     init();
     glutMainLoop();
 }
 int* index = &posX;
 int direction = 1;
+int points = 0;
+int targets = 0;
 void display_callback(){
     checkPos();
 
@@ -52,6 +64,7 @@ void display_callback(){
     drawGrid();
     glColor3f(0.8, 0.4, 0.2);  // Marrom claro
     drawSnake();
+    targetControl();
     *index += direction;
     glutSwapBuffers();
 }
@@ -95,10 +108,46 @@ void init(){
 void checkPos(){
     if(posX>=40)
         posX=1;
-    if(posX<=0)
+    if(posX<0)
         posX=39;
     if(posY>=40)
         posY=0;
     if(posY<0)
         posY=39;
+}
+void targetControl(){
+    if(!targets){
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        std::uniform_int_distribution<int> maxTargets(1, 5);
+        targets = maxTargets(rng);
+        for(int i = 0; i < targets; i++){
+            target t;
+            do {
+                 t = createTarget();
+            } while (grid[t.x][t.y].value != 0);
+
+            grid[t.x][t.y] = t;
+        }
+    }
+
+    int count = 0;
+    for(const vector<target>& t : grid){
+        for(const target& element : t){
+            if(element.value){
+                drawTarget(element);
+                count++;
+            }
+        }
+    }
+
+    if(count == 0){
+        targets = 0;
+    }
+
+    if(grid[posX][posY].value){
+        points += grid[posX][posY].value;
+        grid[posX][posY].value = 0;
+        targets--;
+    }
 }
