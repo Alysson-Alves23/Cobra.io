@@ -26,7 +26,7 @@ using namespace std;
 
 #define COLUMNS 40
 #define ROWS 40
-#define FPS 10
+#define FPS 18
 
 snake s;
 
@@ -169,10 +169,10 @@ void targetControl(){
         bool horizontal = index == &posX;
         b.x = s.body[s.body.size()-1].x -(horizontal?1:0);
         b.y = s.body[s.body.size()-1].y - (horizontal?0:1);
-        s.size++;
+        s.size+=grid[posX][posY].value/5;
         printf("size : %d\n",s.size);
        // s.body.resize(s.size);
-        s.body.push_back(b);
+        //s.body.size(s);
 
 
         points += grid[posX][posY].value;
@@ -189,18 +189,19 @@ void moveSnake(){
            s.body[i].y = lastY;
            lastX= auxX;
            lastY=auxY;
-        drawSnake(s.body[i]);
+      //
     }
     s.body[0].x = posX;
     s.body[0].y = posY;
-    for(int i = 1; i< s.size;i++)
-        if(s.body[0].x == s.body[i].x  && s.body[0].y==s.body[i].y){
+    for(int i = 0; i< s.size;i++)
+        if(s.body[0].x == s.body[i+1].x  && s.body[0].y==s.body[i+1].y){
             s.size=1;
             points = 0;
             posX =20;
             posY = 20;
-        }
-    drawSnake(s.body[0]);
+        } else
+            drawSnake(s.body[i]);
+
 }
 void scoreboard() {
     std::string pointsStr = "Points: " + std::to_string(points);
