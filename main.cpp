@@ -26,10 +26,9 @@ using namespace std;
 
 #define COLUMNS 40
 #define ROWS 40
-#define FPS 18
+#define FPS 10
 
-
-
+snake s;
 
 void display_callback();
 void reshape_callback(int,int);
@@ -38,9 +37,17 @@ void timer_callback(int);
 void init();
 void checkPos();
 void targetControl();
+void moveSnake();
 void scoreboard();
+
 vector<vector<target>> grid(40,vector<target>(40));
 int main (int argc, char **v){
+
+    segment b;
+    b.x = posX;
+    b.y = posY;
+    s.body.push_back(b);
+    s.size++;
     glutInit(&argc, v);
     glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE);
     glutInitWindowSize(500,500);
@@ -58,12 +65,15 @@ int direction = 1;
 int points = 0;
 int targets = 0;
 void display_callback(){
-    checkPos();
 
+    checkPos();
     glClear(GL_COLOR_BUFFER_BIT);
     drawGrid();
-    glColor3f(0.8, 0.4, 0.2);  // Marrom claro
-    drawSnake();
+     // Marrom claro
+
+    moveSnake();
+
+
     targetControl();
     *index += direction;
     scoreboard();
@@ -103,6 +113,7 @@ void timer_callback(int){
     glutTimerFunc(1000/FPS,timer_callback,0);
 }
 void init(){
+
     glClearColor(1,1,1,1);
     initGrid(COLUMNS,ROWS);
 }
@@ -147,14 +158,39 @@ void targetControl(){
     }
 
     if(grid[posX][posY].value){
+        segment b;
+        bool horizontal = index == &posX;
+        b.x = s.body[s.body.size()-1].x -(horizontal?1:0);
+        b.y = s.body[s.body.size()-1].y - (horizontal?0:1);
+        s.size++;
+        printf("size : %d\n",s.size);
+       // s.body.resize(s.size);
+        s.body.push_back(b);
+
+
         points += grid[posX][posY].value;
         grid[posX][posY].value = 0;
         targets--;
     }
 }
+void moveSnake(){
+
+    int lastX = s.body[0].x,lastY = s.body[0].y;
+    for(int i = 1; i< s.size;i++) {
+           int auxX=s.body[i].x, auxY=s.body[i].y;
+           s.body[i].x = lastX;
+           s.body[i].y = lastY;
+           lastX= auxX;
+           lastY=auxY;
+        drawSnake(s.body[i]);
+    }
+    s.body[0].x = posX;
+    s.body[0].y = posY;
+    drawSnake(s.body[0]);
+}
 void scoreboard() {
     std::string pointsStr = "Points: " + std::to_string(points);
-    glColor3f(0, 0, 0); // Define a cor do texto (branco)
+    glColor3f(0, 0, 0); // Define a cor do texto (sobranco)
 
     glRasterPos2f(1.0, 39.0); // Define a posição inicial para desenhar o texto
 

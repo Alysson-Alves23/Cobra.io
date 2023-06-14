@@ -11,7 +11,15 @@ struct target{
     int value = 0;
     int x,y;
 };
-
+struct segment{
+    int x=19;
+    int y=20;
+    float color [3] = {0.8,0.4,0.2};
+};
+struct snake{
+    int size = 0;
+    std::vector<segment> body;
+};
 int rand(int a,int b){
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -43,12 +51,17 @@ void drawGrid() {
         for(int j = 1;j<gridY-1;j++)
         unit(i, j);
 }
-void drawSnake(){
-    glRectd(posX,posY,posX+1,posY+1);
-    //SglRectd(20,20,21,21);
+void drawSnake(segment s){
+
+        glTranslated(0,0,0);
+        glColor3f(0.8, 0.4, 0.2);
+        glRectd(s.x,s.y,s.x+1,s.y+1);
+
+
 }
 void drawTarget(target t){
     //glRectd(20,20,21,21);
+
     glColor3f(t.color[0], t.color[1], t.color[2]);
     glRectd(t.x,t.y,t.x+1,t.y+1);
 }
