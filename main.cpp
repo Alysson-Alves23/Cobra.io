@@ -79,7 +79,7 @@ void CriaMenu()
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-// Função callback chamada para gerenciar eventos do mouse
+// Funï¿½ï¿½o callback chamada para gerenciar eventos do mouse
 void GerenciaMouse(int button, int state, int x, int y)
 {
     if (button == GLUT_RIGHT_BUTTON)
@@ -165,15 +165,15 @@ void init(){
     glClearColor(1,1,1,1);
     initGrid(COLUMNS,ROWS);
 }
+void kill(){
+    posX =20;
+    posY= 20;
+    s.size= 1;
+    points = 0;
+}
 void checkPos(){
-    if(posX>=40)
-        posX=1;
-    if(posX<0)
-        posX=39;
-    if(posY>=40)
-        posY=0;
-    if(posY<0)
-        posY=39;
+    if(posX >= 40 || posY>= 40 || posX<0 || posY< 0)
+        kill();
 }
 void targetControl(){
     if(!targets){
