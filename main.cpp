@@ -42,6 +42,53 @@ void scoreboard();
 
 vector<vector<target>> grid(40,vector<target>(40));
 
+void MenuInformacoes(int op)
+{
+   switch(op) {
+            case 0:
+            		printf("Como jogar:\nW para cima\nS para baixo\nA para direita\nD para esquerda\n");
+			        break;
+    glutPostRedisplay();
+	}
+}
+
+// Gerenciamento do menu principal
+void MenuPrincipal(int op)
+{
+    if (op == 0) {
+            exit(0);
+    }
+}
+
+void CriaMenu()
+{
+    int menu,submenu1,submenu2;
+
+	submenu1 = glutCreateMenu(MenuInformacoes);
+	glutAddMenuEntry("W para cima",0);
+	glutAddMenuEntry("A para esquerda",0);
+	glutAddMenuEntry("S para baixo ",0);
+	glutAddMenuEntry("D para direita",0);
+
+    menu = glutCreateMenu(MenuPrincipal);
+
+    glutAddSubMenu("Como Jogar",submenu1);
+    
+    glutAddMenuEntry("Sair",0);
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+// Função callback chamada para gerenciar eventos do mouse
+void GerenciaMouse(int button, int state, int x, int y)
+{
+    if (button == GLUT_RIGHT_BUTTON)
+         if (state == GLUT_DOWN)
+            CriaMenu();
+
+    glutPostRedisplay();
+}
+
 int main (int argc, char **v){
 
     segment b;
@@ -57,7 +104,7 @@ int main (int argc, char **v){
     glutReshapeFunc(reshape_callback);
     glutKeyboardFunc(keyboard_callback);
     glutTimerFunc(0,timer_callback,0);
-
+	CriaMenu();
     init();
     glutMainLoop();
 }
@@ -205,12 +252,22 @@ void moveSnake(){
 }
 void scoreboard() {
     std::string pointsStr = "Points: " + std::to_string(points);
+    
     glColor3f(0, 0, 0); // Define a cor do texto (sobranco)
 
-    glRasterPos2f(1.0, 39.0); // Define a posiÃ§Ã£o inicial para desenhar o texto
-
+    glRasterPos2f(1.0, 37.0); // Define a posicao inicial para desenhar o texto
+    
     // Itera pelos caracteres da string e desenha cada um individualmente
     for (char c : pointsStr) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c); // Especifica a fonte e o caractere a ser desenhado
+    }
+    
+   string info = "Menu abre ao clicar com botao direito na tela";
+
+	glRasterPos2f(1.0, 39.0); // Define a posicao inicial para desenhar o texto
+    
+    // Itera pelos caracteres da string e desenha cada um individualmente
+    for (char c : info) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c); // Especifica a fonte e o caractere a ser desenhado
     }
 }
