@@ -39,13 +39,15 @@ void checkPos();
 void targetControl();
 void moveSnake();
 void scoreboard();
+void kill();
+void gameover();
 
 vector<vector<target>> grid(40,vector<target>(40));
 
 void MenuInformacoes(int op)
 {
    switch(op) {
-            case 0:
+            case 2:
             		printf("Como jogar:\nW para cima\nS para baixo\nA para direita\nD para esquerda\n");
 			        break;
     glutPostRedisplay();
@@ -57,7 +59,9 @@ void MenuPrincipal(int op)
 {
     if (op == 0) {
             exit(0);
-    }
+    }else if(op == 1){
+    	//fazer com o que o jogo volte a rodar 
+	}
 }
 
 void CriaMenu()
@@ -65,13 +69,15 @@ void CriaMenu()
     int menu,submenu1,submenu2;
 
 	submenu1 = glutCreateMenu(MenuInformacoes);
-	glutAddMenuEntry("W para cima",0);
-	glutAddMenuEntry("A para esquerda",0);
-	glutAddMenuEntry("S para baixo ",0);
-	glutAddMenuEntry("D para direita",0);
+	glutAddMenuEntry("W para cima",2);
+	glutAddMenuEntry("A para esquerda",2);
+	glutAddMenuEntry("S para baixo ",2);
+	glutAddMenuEntry("D para direita",2);
 
     menu = glutCreateMenu(MenuPrincipal);
 
+	glutAddMenuEntry("Jogar",1);
+	
     glutAddSubMenu("Como Jogar",submenu1);
     
     glutAddMenuEntry("Sair",0);
@@ -80,7 +86,7 @@ void CriaMenu()
 }
 
 // Fun��o callback chamada para gerenciar eventos do mouse
-void GerenciaMouse(int button, int state, int x, int y)
+void GerenciaMouse(int button, int state)
 {
     if (button == GLUT_RIGHT_BUTTON)
          if (state == GLUT_DOWN)
@@ -97,7 +103,7 @@ int main (int argc, char **v){
     s.body.push_back(b);
     s.size++;
     glutInit(&argc, v);
-    glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE);
+    glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);
     glutInitWindowSize(500,500);
     glutCreateWindow("cobra.io");
     glutDisplayFunc(display_callback);
@@ -166,10 +172,12 @@ void init(){
     initGrid(COLUMNS,ROWS);
 }
 void kill(){
+	glutDisplayFunc(gameover);  
     posX =20;
     posY= 20;
     s.size= 1;
     points = 0;
+    
 }
 void checkPos(){
     if(posX >= 40 || posY>= 40 || posX<0 || posY< 0)
@@ -242,10 +250,7 @@ void moveSnake(){
     s.body[0].y = posY;
     for(int i = 0; i< s.size;i++)
         if(s.body[0].x == s.body[i+1].x  && s.body[0].y==s.body[i+1].y){
-            s.size=1;
-            points = 0;
-            posX =20;
-            posY = 20;
+            kill();
         } else
             drawSnake(s.body[i]);
 
@@ -270,4 +275,27 @@ void scoreboard() {
     for (char c : info) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c); // Especifica a fonte e o caractere a ser desenhado
     }
+}
+void DesenhaTexto(void *font, char *string) 
+{
+	// Exibe caractere a caractere
+	while(*string)
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15,*string++); 
+}
+
+void gameover(){
+	printf("Game Over");
+	glMatrixMode(GL_MODELVIEW);
+	
+	glLoadIdentity();
+     
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glLineWidth(2);
+	glRasterPos2f(16,20); 
+	glColor3f(1,0,0);
+	DesenhaTexto(GLUT_BITMAP_9_BY_15,"Game Over");
+	
+	glutSwapBuffers();
+	
 }
