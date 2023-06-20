@@ -118,6 +118,7 @@ int* index = &posX;
 int direction = 1;
 int points = 0;
 int targets = 0;
+int vidas = 3;
 void display_callback(){
 
     checkPos();
@@ -172,11 +173,14 @@ void init(){
     initGrid(COLUMNS,ROWS);
 }
 void kill(){
-	glutDisplayFunc(gameover);  
+	vidas--;
+	printf("Vidas restantes:%d\n",vidas);
     posX =20;
     posY= 20;
     s.size= 1;
     points = 0;
+    if(vidas==0)
+    glutDisplayFunc(gameover); 
     
 }
 void checkPos(){
@@ -256,7 +260,7 @@ void moveSnake(){
 
 }
 void scoreboard() {
-    std::string pointsStr = "Points: " + std::to_string(points);
+    std::string pointsStr = "Points: " + std::to_string(points) + "  Vidas: " + std::to_string(vidas);
     
     glColor3f(0, 0, 0); // Define a cor do texto (sobranco)
 
@@ -284,7 +288,6 @@ void DesenhaTexto(void *font, char *string)
 }
 
 void gameover(){
-	printf("Game Over");
 	glMatrixMode(GL_MODELVIEW);
 	
 	glLoadIdentity();
