@@ -26,7 +26,7 @@ using namespace std;
 
 #define COLUMNS 40
 #define ROWS 40
-#define FPS 18
+#define FPS 20
 
 snake s;
 
@@ -41,9 +41,12 @@ void moveSnake();
 void scoreboard();
 void kill();
 void gameover();
-
+void enemyController();
+pair<int,int> foodGPS(snake);
 vector<vector<target>> targetGrid(40,vector<target>(40));
+
 vector<vector<int>> grid(40,vector<int>(40));
+vector<snake> enemies;
 int* index = &posX;
 int direction = 1;
 int points = 0;
@@ -112,6 +115,8 @@ int main (int argc, char **v){
     b.y = posY;
     s.body.push_back(b);
     s.size++;
+    enemies.push_back(drawEnemy());
+
     glutInit(&argc, v);
     glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);
     glutInitWindowSize(500,500);
@@ -122,7 +127,9 @@ int main (int argc, char **v){
     glutTimerFunc(0,timer_callback,0);
 	CriaMenu();
     init();
+
     glutMainLoop();
+
 }
 
 void display_callback(){
@@ -134,11 +141,12 @@ void display_callback(){
 
     moveSnake();
 
-
+    enemyController();
     targetControl();
     *index += direction;
     scoreboard();
     glutSwapBuffers();
+
 }
 void reshape_callback(int w, int h){
     glViewport(0,0,(GLsizei)w,(GLsizei) h);
@@ -181,6 +189,8 @@ void init(){
 void kill(){
 	vidas--;
 	printf("Vidas restantes:%d\n",vidas);
+    printf("x:%d\n",posX);
+    printf("y:%d\n",posY);
     posX =20;
     posY= 20;
     s.size= 1;
@@ -203,14 +213,25 @@ void targetControl(){
 
             do {
                  t = createTarget();
+
+                 s.targets.push_back(t);
+
                  for( segment b: s.body){
                      if(t.x== b.x && t.y == b.y){
                          t.value =0;
                      }
                  }
-            } while (targetGrid[t.x][t.y].value != 0 );
+                 for(snake enemy: enemies)
+                     for( segment b: enemy.body){
+                         if(t.x== b.x && t.y == b.y){
+                             t.value =0;
+                         }
+                     }
 
-            targetGrid[t.x][t.y] = t;
+                 targetGrid[t.x][t.y] = t;
+            } while (targetGrid[t.x][t.y].value == 0 );
+
+
         }
     }
 
@@ -220,7 +241,7 @@ void targetControl(){
             if(element.value){
                 drawTarget(element);
                 count++;
-            }
+           }
         }
     }
 
@@ -239,6 +260,18 @@ void targetControl(){
         //s.body.size(s);
 
 
+            for(int i = 0;i < s.targets.size(); i++){
+                if(s.targets[i].y == posX &&s.targets[i].y == posY){
+                    printf("alvo apagado! em %d %d", s.targets[i].y,s.targets[i].x);
+                    s.targets.erase(s.targets.begin()+i);
+                    s.targets[i]={};
+                    s.targets[i]={};
+                break;
+                }
+                for(snake &enemy: enemies) {
+                    enemy.targets = s.targets;
+                }
+        }
         points += targetGrid[posX][posY].value;
         targetGrid[posX][posY].value = 0;
         targets--;
@@ -247,7 +280,7 @@ void targetControl(){
 void moveSnake(){
 
     int lastX = s.body[0].x,lastY = s.body[0].y;
-    for(int i = 1; i< s.size;i++) {
+    for(int i = 0; i< s.size+1;i++) {
            int auxX=s.body[i].x, auxY=s.body[i].y;
            s.body[i].x = lastX;
            s.body[i].y = lastY;
@@ -260,12 +293,13 @@ void moveSnake(){
     for(int i = 0; i< s.size;i++)
         if(s.body[0].x == s.body[i+1].x  && s.body[0].y==s.body[i+1].y){
             kill();
-        } else
-            drawSnake(s.body[i]);
+        } else{
+            glColor3f(0.8, 0.4, 0.2);
+            drawSnake(s.body[i]);}
 
 }
 void scoreboard() {
-    std::string pointsStr = "Points: " + std::to_string(points) + "  Vidas: " + std::to_string(vidas);
+    std::string pointsStr = "Points: " + std::to_string(points) + "  Vidas: " + std::to_string(vidas) ;
     
     glColor3f(0, 0, 0); // Define a cor do texto (sobranco)
 
@@ -306,4 +340,98 @@ void gameover(){
 	
 	glutSwapBuffers();
 	
+}
+int count = 10;
+void enemyController(){
+    for(snake &enemy : enemies){
+        pair<int,int> tgs = foodGPS(enemy);
+        pair<int,int> minFit = {-1,-1};
+        pair<int,int> simu[4] = {{enemy.body[0].x-1,enemy.body[0].y},{enemy.body[0].x+1,enemy.body[0].y},
+                                 {enemy.body[0].x,enemy.body[0].y-1},{enemy.body[0].x,enemy.body[0].y+1}};
+        for(int i = 0; i< 4; i++){
+
+            int flag= 1;
+            for(int j = 0; j< enemy.size;j++){
+
+                if((simu[i].first == enemy.body[j+1].x  && simu[i].second==enemy.body[j+1].y) || simu[i].first>= 40 || simu[i].first< 0  ||simu[i].second>= 40 || simu[i].second< 0 ){
+                    ::printf("\ncolide a parte %d %d coord %d %d\n", i,j,enemy.body[j+1].x,enemy.body[j+1].y);
+                    flag = 0;
+                    break;
+                }}
+            if(flag)
+                if( minFit != pair<int,int>(-1,-1)){
+                    int simuFit = abs(abs(simu[i].first - tgs.first) + abs(tgs.first- simu[i].second) );
+                    int minSimuFit = abs( abs(minFit.first  - tgs.first) + abs(tgs.first-simu[i].second) );
+
+                    if(simuFit< minSimuFit)
+                       minFit = simu[i];
+                    else
+                        if(simuFit == minSimuFit ) {
+                            pair<int, int> sortear[2] = {minFit, simu[i]};
+                            minFit = sortear[(rand(0, 100) % 2) > 0];
+                        }
+                ::printf("%d < %d\n",abs((simu[i].first +simu[i].second) - (tgs.first+tgs.second))
+                ,abs (( (minFit.first +minFit.second) - (tgs.first+tgs.second) )));
+                }else
+                    minFit= simu[i];
+
+
+        }
+        ::printf("minFit = {%d,%d}",minFit.first,minFit.second);
+        int lastX = enemy.body[0].x,lastY = enemy.body[0].y;
+        if(minFit == pair<int,int>(-1,-1)){
+            enemy.size= 2;
+            enemy.body[0].x = 30;
+            enemy.body[0].y = 30;
+        return;
+        }
+
+        for(int i = 1; i< enemy.size;i++) {
+            int auxX=enemy.body[i].x, auxY=enemy.body[i].y;
+            enemy.body[i].x = lastX;
+            enemy.body[i].y = lastY;
+            lastX= auxX;
+            lastY= auxY;
+            //
+        }
+        enemy.body[0].x = minFit.first;
+        enemy.body[0].y = minFit.second;
+        for(int i = 0; i< enemy.size;i++) {
+
+            glColor3f(0.5, 0.5, 1);
+            drawSnake(enemy.body[i]);
+        }
+        if(targetGrid[enemy.body[0].x][enemy.body[0].y].value){
+            enemy.size+=targetGrid[enemy.body[0].x][enemy.body[0].y].value/5;
+            points += targetGrid[enemy.body[0].x][enemy.body[0].y].value;
+            targetGrid[enemy.body[0].x][enemy.body[0].y].value = 0;
+            targets--;
+        }
+    }
+}
+pair<int,int>foodGPS(snake snake){
+    pair<int,int> tgs = {-1,-1},aux ;
+    for(vector<target> tg: targetGrid)
+        for(target t: tg){
+            if(t.value)
+            if(tgs.first +tgs.second >-1 ){
+
+                aux = {t.x,t.y};
+                tgs =abs(t.x- snake.body[0].x) + abs(t.y - snake.body[0].y) <abs(tgs.first - snake.body[0].x)+abs(tgs.second - snake.body[0].y)?aux :tgs;
+
+            }else
+                tgs = {t.x,t.y};
+        }
+    std::string pointsStr = "x: " + std::to_string(abs(tgs.first - snake.body[0].x)) + " y: " + std::to_string(abs(tgs.second - snake.body[0].y)) ;
+
+    glColor3f(0, 0, 0); // Define a cor do texto (sobranco)
+
+    glRasterPos2f(1.0, 36.0); // Define a posicao inicial para desenhar o texto
+
+    // Itera pelos caracteres da string e desenha cada um individualmente
+    for (char c : pointsStr) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c); // Especifica a fonte e o caractere a ser desenhado
+    }
+    return tgs;
+
 }

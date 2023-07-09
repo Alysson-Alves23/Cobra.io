@@ -12,12 +12,13 @@ struct target{
     int x,y;
 };
 struct segment{
-    int x=19;
-    int y=20;
+    int x=-1;
+    int y=-1;
     float color [3] = {0.8,0.4,0.2};
 };
 struct snake{
     int size = 0;
+    std::vector<target> targets=std::vector<target>(10);
     std::vector<segment> body= std::vector<segment> (400);
 };
 int rand(int a,int b){
@@ -54,7 +55,7 @@ void drawGrid() {
 void drawSnake(segment s){
 
         glTranslated(0,0,0);
-        glColor3f(0.8, 0.4, 0.2);
+
         glRectd(s.x,s.y,s.x+1,s.y+1);
 
 
@@ -67,7 +68,7 @@ void drawTarget(target t){
 }
 
 target createTarget(){
-    int x = rand(0,40),y = rand(0,40);
+    int x = rand(0,39),y = rand(0,39);
     target t;
     t.x=x;
     t.y=y;
@@ -91,5 +92,12 @@ target createTarget(){
     }
     return t;
 }
-int drawEnemy(){}
+snake drawEnemy(){
+    snake enemy;
+    enemy.body[0].y = 30;
+    enemy.body[0].x = 30;
+
+    enemy.size = rand(2,6);
+    return  enemy;
+}
 #endif // GAME_H
