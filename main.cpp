@@ -116,7 +116,6 @@ int main (int argc, char **v){
     s.body.push_back(b);
     s.size++;
     enemies.push_back(drawEnemy());
-
     glutInit(&argc, v);
     glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);
     glutInitWindowSize(500,500);
@@ -136,14 +135,13 @@ void display_callback(){
 
     checkPos();
     glClear(GL_COLOR_BUFFER_BIT);
-    drawGrid();
-     // Marrom claro
+    drawGrid(grid);
 
-    moveSnake();
+    // moveSnake();
 
     enemyController();
     targetControl();
-    *index += direction;
+   // *index += direction;
     scoreboard();
     glutSwapBuffers();
 
@@ -188,6 +186,8 @@ void init(){
 }
 void kill(){
 	vidas--;
+    for(segment seg : s.body)
+        grid[seg.x][seg.y]=0;
 	printf("Vidas restantes:%d\n",vidas);
     printf("x:%d\n",posX);
     printf("y:%d\n",posY);
@@ -334,7 +334,7 @@ void gameover(){
 	glMatrixMode(GL_MODELVIEW);
 	
 	glLoadIdentity();
-     
+    grid = vector<vector<int>>(40,vector<int>(40));
 	glClear(GL_COLOR_BUFFER_BIT);
     points = 0;
 	glLineWidth(2);
@@ -360,35 +360,42 @@ void enemyController(){
                     flag=0;
                     break;
                 }
-                if((grid[simu[i].first][simu[i].second])  ){
-                    ::printf("\ncolide a parte %d %d coord %d %d\n", i,j,enemy.body[j+1].x,enemy.body[j+1].y);
+                if((grid[simu[i].first][simu[i].second])){
+
+                    ::printf("\ncolide a parte %d %d coord %d %d valor  %d",i,j,enemy.body[j+1].x,enemy.body[j+1].y,grid[simu[i].first][simu[i].second] );
                     flag = 0;
                     break;
                 }
             }
             if(flag)
                 if( minFit != pair<int,int>(-1,-1)){
-                    int simuFit = abs(abs(simu[i].first - tgs.first) + abs(tgs.first- simu[i].second) );
-                    int minSimuFit = abs( abs(minFit.first  - tgs.first) + abs(tgs.first-simu[i].second) );
-
+                    int simuFit = abs(abs(simu[i].first - tgs.first) + abs(tgs.second- simu[i].second) );
+                    int minSimuFit = abs( abs(minFit.first  - tgs.first) + abs(minFit.second-tgs.second) );
+                    ::printf("\n%d < %d\n",simuFit,minFit);
                     if(simuFit< minSimuFit)
                        minFit = simu[i];
                     else
                         if(simuFit == minSimuFit ) {
+
                             pair<int, int> sortear[2] = {minFit, simu[i]};
                             minFit = sortear[(rand(0, 100) % 2) > 0];
                         }
-                ::printf("%d < %d\n",abs((simu[i].first +simu[i].second) - (tgs.first+tgs.second))
-                ,abs (( (minFit.first +minFit.second) - (tgs.first+tgs.second) )));
+                    ::printf("tgs = {%d,%d}\n",tgs.first,tgs.second);
+                        ::printf("minFitCord = {%d,%d}\n",minFit.first,minFit.second);
+                    ::printf("posCord = {%d,%d}\n",simu[i].first,simu[i].second);
+
                 }else
                     minFit= simu[i];
 
 
         }
+
         ::printf("minFit = {%d,%d}",minFit.first,minFit.second);
         int lastX = enemy.body[0].x,lastY = enemy.body[0].y;
         grid[lastX][lastY] = 1;
         if(minFit == pair<int,int>(-1,-1)){
+            for(segment seg : enemy.body)
+                grid[seg.x][seg.y]=0;
             enemy.size= 2;
             enemy.body[0].x = 30;
             enemy.body[0].y = 30;

@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <random>
 #include <chrono>
+#include <stdio.h>
 int gridX, gridY;
 int posX= 20, posY = 20;
 struct target{
@@ -47,10 +48,18 @@ void unit(int x, int y) {
     glEnd();
 }
 
-void drawGrid() {
-    for(int i = 1; i<gridX-1;i++)
-        for(int j = 1;j<gridY-1;j++)
+void drawGrid(std::vector<std::vector<int>> grid) {
+    for(int i = 0; i<gridX-1;i++)
+        for(int j = 0;j<gridY-1;j++){
+
         unit(i, j);
+            glColor3f(0,0,0);
+            glRasterPos2f(i, j); // Define a posicao inicial para desenhar o texto
+
+
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, std::to_string(grid[i][j])[0]); // Especifica a fonte e o caractere a ser desenhado
+            //printf(std::to_string(grid[i][j]).c_str());
+        }
 }
 void drawSnake(segment s){
 
