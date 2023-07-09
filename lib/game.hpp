@@ -12,8 +12,8 @@ struct target{
     int x,y;
 };
 struct segment{
-    int x=-1;
-    int y=-1;
+    int x=0;
+    int y=0;
     float color [3] = {0.8,0.4,0.2};
 };
 struct snake{

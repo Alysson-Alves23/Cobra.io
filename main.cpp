@@ -26,7 +26,7 @@ using namespace std;
 
 #define COLUMNS 40
 #define ROWS 40
-#define FPS 20
+#define FPS 15
 
 snake s;
 
@@ -70,8 +70,8 @@ void MenuPrincipal(int op)
     }else if(op == 1){
         vidas = 3;
         points = 0;
-        posX= 0;
-        posY= 0;
+        posX= 20;
+        posY= 20;
         glutDisplayFunc(display_callback);
 
 	}
@@ -280,18 +280,22 @@ void targetControl(){
 void moveSnake(){
 
     int lastX = s.body[0].x,lastY = s.body[0].y;
+    grid[lastX][lastY] = 1;
+
     for(int i = 0; i< s.size+1;i++) {
            int auxX=s.body[i].x, auxY=s.body[i].y;
            s.body[i].x = lastX;
            s.body[i].y = lastY;
+
            lastX= auxX;
            lastY=auxY;
       //
     }
     s.body[0].x = posX;
     s.body[0].y = posY;
+    grid[lastX][lastY] = 0;
     for(int i = 0; i< s.size;i++)
-        if(s.body[0].x == s.body[i+1].x  && s.body[0].y==s.body[i+1].y){
+        if(grid[s.body[0].x][s.body[0].y]){
             kill();
         } else{
             glColor3f(0.8, 0.4, 0.2);
@@ -352,12 +356,16 @@ void enemyController(){
 
             int flag= 1;
             for(int j = 0; j< enemy.size;j++){
-
-                if((simu[i].first == enemy.body[j+1].x  && simu[i].second==enemy.body[j+1].y) || simu[i].first>= 40 || simu[i].first< 0  ||simu[i].second>= 40 || simu[i].second< 0 ){
+                if( simu[i].first>= 40 || simu[i].first< 0  ||simu[i].second>= 40 || simu[i].second< 0){
+                    flag=0;
+                    break;
+                }
+                if((grid[simu[i].first][simu[i].second])  ){
                     ::printf("\ncolide a parte %d %d coord %d %d\n", i,j,enemy.body[j+1].x,enemy.body[j+1].y);
                     flag = 0;
                     break;
-                }}
+                }
+            }
             if(flag)
                 if( minFit != pair<int,int>(-1,-1)){
                     int simuFit = abs(abs(simu[i].first - tgs.first) + abs(tgs.first- simu[i].second) );
@@ -379,6 +387,7 @@ void enemyController(){
         }
         ::printf("minFit = {%d,%d}",minFit.first,minFit.second);
         int lastX = enemy.body[0].x,lastY = enemy.body[0].y;
+        grid[lastX][lastY] = 1;
         if(minFit == pair<int,int>(-1,-1)){
             enemy.size= 2;
             enemy.body[0].x = 30;
@@ -394,6 +403,7 @@ void enemyController(){
             lastY= auxY;
             //
         }
+        grid[lastX][lastY] = 0;
         enemy.body[0].x = minFit.first;
         enemy.body[0].y = minFit.second;
         for(int i = 0; i< enemy.size;i++) {
