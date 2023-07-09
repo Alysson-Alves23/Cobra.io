@@ -42,8 +42,13 @@ void scoreboard();
 void kill();
 void gameover();
 
-vector<vector<target>> grid(40,vector<target>(40));
-
+vector<vector<target>> targetGrid(40,vector<target>(40));
+vector<vector<int>> grid(40,vector<int>(40));
+int* index = &posX;
+int direction = 1;
+int points = 0;
+int targets = 0;
+int vidas = 3;
 void MenuInformacoes(int op)
 {
    switch(op) {
@@ -60,7 +65,12 @@ void MenuPrincipal(int op)
     if (op == 0) {
             exit(0);
     }else if(op == 1){
-    	//fazer com o que o jogo volte a rodar 
+        vidas = 3;
+        points = 0;
+        posX= 0;
+        posY= 0;
+        glutDisplayFunc(display_callback);
+
 	}
 }
 
@@ -114,11 +124,7 @@ int main (int argc, char **v){
     init();
     glutMainLoop();
 }
-int* index = &posX;
-int direction = 1;
-int points = 0;
-int targets = 0;
-int vidas = 3;
+
 void display_callback(){
 
     checkPos();
@@ -178,9 +184,8 @@ void kill(){
     posX =20;
     posY= 20;
     s.size= 1;
-    points = 0;
-    if(vidas==0)
-    glutDisplayFunc(gameover); 
+    if(vidas<=0)
+        glutDisplayFunc(gameover);
     
 }
 void checkPos(){
@@ -203,14 +208,14 @@ void targetControl(){
                          t.value =0;
                      }
                  }
-            } while (grid[t.x][t.y].value != 0 );
+            } while (targetGrid[t.x][t.y].value != 0 );
 
-            grid[t.x][t.y] = t;
+            targetGrid[t.x][t.y] = t;
         }
     }
 
     int count = 0;
-    for(const vector<target>& t : grid){
+    for(const vector<target>& t : targetGrid){
         for(const target& element : t){
             if(element.value){
                 drawTarget(element);
@@ -223,19 +228,19 @@ void targetControl(){
         targets = 0;
     }
 
-    if(grid[posX][posY].value){
+    if(targetGrid[posX][posY].value){
         segment b;
         bool horizontal = index == &posX;
         b.x = s.body[s.body.size()-1].x -(horizontal?1:0);
         b.y = s.body[s.body.size()-1].y - (horizontal?0:1);
-        s.size+=grid[posX][posY].value/5;
+        s.size+=targetGrid[posX][posY].value/5;
         printf("size : %d\n",s.size);
        // s.body.resize(s.size);
         //s.body.size(s);
 
 
-        points += grid[posX][posY].value;
-        grid[posX][posY].value = 0;
+        points += targetGrid[posX][posY].value;
+        targetGrid[posX][posY].value = 0;
         targets--;
     }
 }
@@ -293,7 +298,7 @@ void gameover(){
 	glLoadIdentity();
      
 	glClear(GL_COLOR_BUFFER_BIT);
-	
+    points = 0;
 	glLineWidth(2);
 	glRasterPos2f(16,20); 
 	glColor3f(1,0,0);

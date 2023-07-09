@@ -18,7 +18,7 @@ struct segment{
 };
 struct snake{
     int size = 0;
-    std::vector<segment> body;
+    std::vector<segment> body= std::vector<segment> (400);
 };
 int rand(int a,int b){
 
@@ -91,4 +91,5 @@ target createTarget(){
     }
     return t;
 }
+int drawEnemy(){}
 #endif // GAME_H
