@@ -74,7 +74,9 @@ void MenuPrincipal(int op)
         posY= 20;
         glutDisplayFunc(display_callback);
 
-	}
+	}else if(op == 2){
+
+    }
 }
 
 void CriaMenu()
@@ -95,6 +97,7 @@ void CriaMenu()
     
     glutAddMenuEntry("Sair",0);
 
+    glutAddMenuEntry("adicionar obstáculo",0);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -137,11 +140,11 @@ void display_callback(){
     glClear(GL_COLOR_BUFFER_BIT);
     drawGrid(grid);
 
-    // moveSnake();
+    moveSnake();
 
     enemyController();
     targetControl();
-   // *index += direction;
+  *index += direction;
     scoreboard();
     glutSwapBuffers();
 
